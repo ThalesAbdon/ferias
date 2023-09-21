@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Genius Game</title>
+    <style>
+        .button {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+
+        #red {
+            background-color: red;
+        }
+
+        #green {
+            background-color: green;
+        }
+
+        #blue {
+            background-color: blue;
+        }
+
+        #yellow {
+            background-color: yellow;
+        }
+        
+        .active {
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Genius Game</h1>
+    <p id="message">Aguardando início...</p>
+    <div id="buttons">
+        <div class="button" id="red" onclick="handleButtonClick('red')"></div>
+        <div class="button" id="green" onclick="handleButtonClick('green')"></div>
+        <div class="button" id="blue" onclick="handleButtonClick('blue')"></div>
+        <div class="button" id="yellow" onclick="handleButtonClick('yellow')"></div>
+    </div>
+    <p id="score">Pontos: 0</p>
+    <button id="startButton" onclick="startGame()">Iniciar Jogo</button>
+
+    <script>
+        const colors = ['red', 'green', 'blue', 'yellow'];
+        const sequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let gameStarted = false;
+
+        const messageElement = document.getElementById('message');
+        const startButton = document.getElementById('startButton');
+        const scoreElement = document.getElementById('score');
+        const buttons = document.querySelectorAll('.button');
+
+        function playSequence() {
+            messageElement.textContent = 'Reproduza a sequência!';
+            buttons.forEach(button => button.classList.remove('active'));
+            let i = 0;
+            const interval = setInterval(() => {
+                const color = sequence[i];
+                activateButton(color);
+                i++;
+                if (i >= sequence.length) {
+                    clearInterval(interval);
+                    messageElement.textContent = 'Sua vez!';
+                }
+            }, 1000);
+        }
+
+        function activateButton(color) {
+            const button = document.getElementById(color);
+            button.classList.add('active');
+            setTimeout(() => {
+                button.classList.remove('active');
+            }, 500);
+        }
+
+        function nextLevel() {
+            level++;
+            messageElement.textContent = `Nível ${level}`;
+            playerSequence = [];
+            addToSequence();
+            setTimeout(() => {
+                playSequence();
+            }, 1000);
+            scoreElement.textContent = `Pontos: ${level}`; // Atualizar a pontuação em tempo real
+        }
+
+        function addToSequence() {
+            const randomColor = colors[Math.floor(Math.random() * 4)];
+            sequence.push(randomColor);
+        }
+
+        function checkPlayerInput(color) {
+            const expectedColor = sequence[playerSequence.length];
+            if (color !== expectedColor) {
+                messageElement.textContent = `Você perdeu! Pontuação: ${level}. Clique em "Iniciar Jogo" para jogar novamente.`;
+                gameStarted = false;
+                return;
+            }
+            playerSequence.push(color);
+            if (playerSequence.length === sequence.length) {
+                setTimeout(() => {
+                    nextLevel();
+                }, 1000);
+            }
+        }
+
+        function handleButtonClick(color) {
+            if (gameStarted) {
+                activateButton(color);
+                checkPlayerInput(color);
+            }
+        }
+
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                level = 0;
+                sequence.length = 0;
+                playerSequence.length = 0;
+                scoreElement.textContent = 'Pontos: 0'; // Zerar a pontuação
+                nextLevel();
+            }
+        }
+    </script>
+</body>
+</html>
